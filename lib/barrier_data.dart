@@ -22,6 +22,7 @@ class PairBarier extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BorderSide borderSide = const BorderSide(color: Colors.black, width: 2);
     double width = 85; // fixed width
     double topHeight = MediaQuery.of(context).size.height * data['top']!;
     double bottomHeight = MediaQuery.of(context).size.height * data['bottom']!;
@@ -31,12 +32,26 @@ class PairBarier extends StatelessWidget {
         Container(
           width: width,
           height: topHeight,
-          color: Colors.green,
+          decoration: BoxDecoration(
+            color: Colors.green,
+            border: Border(
+              left: borderSide,
+              right: borderSide,
+              bottom: borderSide,
+            )
+          ),
         ),
         Container(
           width: width,
           height: bottomHeight,
-          color: Colors.green,
+          decoration: BoxDecoration(
+            color: Colors.green,
+            border: Border(
+              top: borderSide,
+              left: borderSide,
+              right: borderSide,
+            )
+          ),
         )
       ],
     );

@@ -61,6 +61,14 @@ class _GameHomePageState extends State<GameHomePage> {
             },
             child: Stack(
               children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('images/background.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
                 AnimatedContainer(
                   // Alignment(x, y)
                   // [-1 <= x,y << 1]
@@ -76,7 +84,6 @@ class _GameHomePageState extends State<GameHomePage> {
                   // the horizontal position is always center
                   alignment: Alignment(0, _birdVerticalPosition),
                   duration: const Duration(milliseconds: 0),
-                  color: Colors.blue,
                   child: const Bird(),
                 ),
                 AnimatedContainer(
@@ -98,8 +105,9 @@ class _GameHomePageState extends State<GameHomePage> {
                             : ''
                         : '',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Color.fromARGB(255, 0, 255, 8),
                       fontSize: 25,
+                      fontWeight: FontWeight.w700
                     ),
                   ),
                 ),
