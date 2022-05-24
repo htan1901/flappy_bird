@@ -37,13 +37,13 @@ class _GameHomePageState extends State<GameHomePage> {
   bool _isGameEnd = false;
 
   static double _firstBarrierPosition = 1.5;
-  double _secondBarrierPosition = _firstBarrierPosition + 2;
+  static double _secondBarrierPosition = _firstBarrierPosition + 2;
 
   int _firstBarrierType = _random.nextInt(_numberOfBarrier - 1);
   int _secondBarrierType = _random.nextInt(_numberOfBarrier - 1);
 
   int _score = 0;
-  int _hightScore = 10;
+  int _highScore = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class _GameHomePageState extends State<GameHomePage> {
                     ),
                   ),
                 ),
-                AnimatedContainer(
+                AnimatedContainer( // bird
                   // Alignment(x, y)
                   // [-1 <= x,y << 1]
                   // (0, 0) is in the middle
@@ -105,10 +105,9 @@ class _GameHomePageState extends State<GameHomePage> {
                             : ''
                         : '',
                     style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 255, 8),
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700
-                    ),
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 25,
+                        fontWeight: FontWeight.w700),
                   ),
                 ),
                 Container(
@@ -116,7 +115,7 @@ class _GameHomePageState extends State<GameHomePage> {
                   child: Text(
                     _isGameStarted ? '$_score' : '',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 40,
                     ),
                   ),
@@ -172,7 +171,7 @@ class _GameHomePageState extends State<GameHomePage> {
                                     ),
                                   ),
                                   Text(
-                                    '$_hightScore',
+                                    '$_highScore',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -239,12 +238,11 @@ class _GameHomePageState extends State<GameHomePage> {
   }
 
   void _startGame() {
-    Random random = Random(DateTime.now().millisecondsSinceEpoch);
     _isGameStarted = true;
     setState(() {
       Timer.periodic(const Duration(milliseconds: 50), (timer) {
         _time += 0.04;
-        _heightOverTime = calculateHeightOverTime();
+        _heightOverTime = _calculateHeightOverTime();
         setState(() {
           _firstBarrierPosition -= 0.03;
           _secondBarrierPosition -= 0.03;
@@ -254,7 +252,7 @@ class _GameHomePageState extends State<GameHomePage> {
           timer.cancel();
           _isGameStarted = false;
           _isGameEnd = true;
-          _hightScore = _score > _hightScore ? _score : _hightScore;
+          _highScore = _score > _highScore ? _score : _highScore;
         }
         if (_isScored()) {
           _score++;
@@ -262,11 +260,11 @@ class _GameHomePageState extends State<GameHomePage> {
 
         // reset the position of bariers
         if (_firstBarrierPosition < -2) {
-          _firstBarrierType = random.nextInt(_numberOfBarrier - 1);
+          _firstBarrierType = _random.nextInt(_numberOfBarrier - 1);
           _firstBarrierPosition += 4;
         }
         if (_secondBarrierPosition < -2) {
-          _secondBarrierType = random.nextInt(_numberOfBarrier - 1);
+          _secondBarrierType = _random.nextInt(_numberOfBarrier - 1);
           _secondBarrierPosition += 4;
         }
       });
@@ -312,7 +310,7 @@ class _GameHomePageState extends State<GameHomePage> {
         _birdVerticalPosition > 1;
   }
 
-  double calculateHeightOverTime() {
+  double _calculateHeightOverTime() {
     // x = (1/2)*a*t^2 + v0*t
 
     // equation to calculate position over time
