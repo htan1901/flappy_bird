@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class BarierData {
   static List<Map<String, double>> data = [
@@ -32,27 +33,29 @@ class PairBarier extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Container(
+        SizedBox(
           width: width,
           height: topHeight,
-          decoration: BoxDecoration(
-              color: Colors.green,
-              border: Border(
-                left: borderSide,
-                right: borderSide,
-                bottom: borderSide,
-              )),
+          child: Transform.rotate(
+            angle: pi,
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/barrier.png"),
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+          ),
         ),
         Container(
           width: width,
           height: bottomHeight,
-          decoration: BoxDecoration(
-              color: Colors.green,
-              border: Border(
-                top: borderSide,
-                left: borderSide,
-                right: borderSide,
-              )),
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+            image: AssetImage("assets/images/barrier.png"),
+            fit: BoxFit.fill
+          )),
         )
       ],
     );

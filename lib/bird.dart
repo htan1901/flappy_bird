@@ -8,6 +8,6 @@ class Bird extends StatelessWidget {
     return SizedBox(
       width: 60,
       height: 60,
-      child: Image.asset('images/birds.png'));
+      child: Image.asset('assets/images/birds.png'));
   }
 }

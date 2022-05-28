@@ -64,12 +64,13 @@ class _GameHomePageState extends State<GameHomePage> {
                 Container(
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('images/background.png'),
+                      image: AssetImage('assets/images/background.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                AnimatedContainer( // bird
+                AnimatedContainer(
+                  // bird
                   // Alignment(x, y)
                   // [-1 <= x,y << 1]
                   // (0, 0) is in the middle
@@ -120,103 +121,110 @@ class _GameHomePageState extends State<GameHomePage> {
                     ),
                   ),
                 ),
-                Container(
-                  alignment: Alignment.center,
-                  child: _isGameEnd
-                      ? Container(
-                          width: 350,
-                          height: 300,
-                          alignment: const Alignment(0, 0),
-                          padding: const EdgeInsets.all(15),
-                          color: Colors.brown,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              const Text(
-                                "GAME OVER",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: const [
-                                  Text(
-                                    'Score',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Highest Score',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Text(
-                                    '$_score',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  Text(
-                                    '$_highScore',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _restartGame();
-                                      });
-                                    },
-                                    icon: const Icon(
-                                      Icons.restart_alt,
-                                      size: 30,
-                                    ),
-                                    color: Colors.white,
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      SystemNavigator.pop();
-                                    },
-                                    icon: const Icon(
-                                      Icons.exit_to_app,
-                                      size: 30,
-                                    ),
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        )
-                      : null,
-                )
+                _buildDialog()
               ],
             ),
           )),
         ],
       ),
+    );
+  }
+
+  Container _buildDialog() {
+    return Container(
+      alignment: Alignment.center,
+      child: _isGameEnd
+          ? Container(
+              width: 350,
+              height: 300,
+              decoration: BoxDecoration(
+                  color: Colors.brown,
+                  border: Border.all(
+                    color: Colors.amberAccent,
+                    style: BorderStyle.solid,
+                    width: 5,
+                  )),
+              alignment: const Alignment(0, 0),
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  const Text(
+                    "GAME OVER",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: const [
+                      Text(
+                        'Score',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        'Highest Score',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      )
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        '$_score',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        '$_highScore',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      )
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _restartGame();
+                          });
+                        },
+                        icon: const Icon(
+                          Icons.restart_alt,
+                          size: 30,
+                        ),
+                        color: Colors.white,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          SystemNavigator.pop();
+                        },
+                        icon: const Icon(
+                          Icons.exit_to_app,
+                          size: 30,
+                        ),
+                        color: Colors.white,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            )
+          : null,
     );
   }
 
