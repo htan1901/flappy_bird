@@ -1,40 +1,41 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
-import 'package:flappy_bird/barrier_data.dart';
-import 'package:flappy_bird/bird.dart';
+import 'package:flappy_bird/entity/barrier_data.dart';
+import 'package:flappy_bird/entity/bird.dart';
+import 'package:flappy_bird/util/json_file.dart';
+import 'package:flappy_bird/util/score.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class GameHomePage extends StatefulWidget {
-  const GameHomePage({Key? key}) : super(key: key);
+  Score score = Score();
+  GameHomePage({Key? key}) : super(key: key);
 
   @override
   State<GameHomePage> createState() => _GameHomePageState();
 }
 
 class _GameHomePageState extends State<GameHomePage> {
-  // constant
   final double _gravityForce = 9.8;
-  // change if you want bird move faster or slower
+  final double _birdFallingSpeed = 0.04;
+  // change if you want bird move higher or shorter
   final double _initialVelocity = 2.8;
+  // change if you want barrier move faster or slower
+  double _barrierSpeed = 0.03;
 
   static final List<Map<String, double>> _data = BarierData.data;
   static final _numberOfBarrier = _data.length;
 
   static final Random _random = Random(DateTime.now().millisecondsSinceEpoch);
 
-  // While playing, the bird don't move left to right,
-  // just moves up and down, so we must use a variable to
-  // store the Y axis's value to store the position of the bird.
-  // 0 is starting position of the bird.
   static double _birdVerticalPosition = 0;
   double _currentHeight = _birdVerticalPosition;
   double _time = 0;
   double _heightOverTime = 0;
   bool _isGameStarted = false;
   bool _isGameEnd = false;
+  int _showType = 1;
 
   static double _firstBarrierPosition = 1.5;
   static double _secondBarrierPosition = _firstBarrierPosition + 2;
@@ -42,8 +43,19 @@ class _GameHomePageState extends State<GameHomePage> {
   int _firstBarrierType = _random.nextInt(_numberOfBarrier - 1);
   int _secondBarrierType = _random.nextInt(_numberOfBarrier - 1);
 
-  int _score = 0;
-  int _highScore = 0;
+  int _playScore = 0;
+  late int _highScore;
+
+  @override
+  void initState() {
+    super.initState();
+    JsonManager().readJsonFile().then((value) {
+      setState(() {
+        widget.score.fromJson(value);
+        _highScore = widget.score.getHighScore();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,19 +82,6 @@ class _GameHomePageState extends State<GameHomePage> {
                   ),
                 ),
                 AnimatedContainer(
-                  // bird
-                  // Alignment(x, y)
-                  // [-1 <= x,y << 1]
-                  // (0, 0) is in the middle
-                  // Visualization:
-                  //   ----(-1)----
-                  //   |          |
-                  //  -1  screen  1
-                  //   |          |
-                  //   -----(1)----
-
-                  // align the bird base on its vertical position
-                  // the horizontal position is always center
                   alignment: Alignment(0, _birdVerticalPosition),
                   duration: const Duration(milliseconds: 0),
                   child: const Bird(),
@@ -114,7 +113,7 @@ class _GameHomePageState extends State<GameHomePage> {
                 Container(
                   alignment: const Alignment(0, -0.9),
                   child: Text(
-                    _isGameStarted ? '$_score' : '',
+                    _isGameStarted ? '$_playScore' : '',
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 40,
@@ -146,85 +145,132 @@ class _GameHomePageState extends State<GameHomePage> {
                   )),
               alignment: const Alignment(0, 0),
               padding: const EdgeInsets.all(15),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  const Text(
-                    "GAME OVER",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: const [
-                      Text(
-                        'Score',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
-                      Text(
-                        'Highest Score',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text(
-                        '$_score',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
-                      Text(
-                        '$_highScore',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _restartGame();
-                          });
-                        },
-                        icon: const Icon(
-                          Icons.restart_alt,
-                          size: 30,
-                        ),
-                        color: Colors.white,
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          SystemNavigator.pop();
-                        },
-                        icon: const Icon(
-                          Icons.exit_to_app,
-                          size: 30,
-                        ),
-                        color: Colors.white,
-                      ),
-                    ],
-                  )
-                ],
-              ),
+              child: _showDialog(_showType),
             )
           : null,
+    );
+  }
+
+  Column _showDialog(int type) {
+    switch (type) {
+      case 1:
+        return _endGameDialog();
+      case 2:
+        return _scoreDialog();
+      default:
+    }
+    return _endGameDialog();
+  }
+
+  Column _scoreDialog() {
+    return Column(
+      children: <Widget>[
+        ButtonBar(
+          alignment: MainAxisAlignment.start,
+          children: [
+            BackButton(
+              color: Colors.white,
+              onPressed: () {
+                setState(() {
+                  _showType = 1;
+                });
+              },
+            )
+          ],
+        )
+      ],
+    );
+  }
+
+  Column _endGameDialog() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        const Text(
+          "GAME OVER",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: const [
+            Text(
+              'Score',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            ),
+            Text(
+              'Highest Score',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            )
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text(
+              '$_playScore',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            ),
+            Text(
+              '$_highScore',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            )
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _restartGame();
+                });
+              },
+              icon: const Icon(
+                Icons.restart_alt,
+                size: 30,
+              ),
+              color: Colors.white,
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _showType = 2;
+                });
+              },
+              icon: const Icon(
+                Icons.format_list_numbered_outlined,
+                size: 30,
+              ),
+              color: Colors.white,
+            ),
+            IconButton(
+              onPressed: () {
+                SystemNavigator.pop();
+              },
+              icon: const Icon(
+                Icons.exit_to_app,
+                size: 30,
+              ),
+              color: Colors.white,
+            ),
+          ],
+        )
+      ],
     );
   }
 
@@ -242,28 +288,34 @@ class _GameHomePageState extends State<GameHomePage> {
     _firstBarrierType = _random.nextInt(_numberOfBarrier - 1);
     _secondBarrierType = _random.nextInt(_numberOfBarrier - 1);
 
-    _score = 0;
+    _playScore = 0;
+    _barrierSpeed = 0.03;
   }
 
   void _startGame() {
     _isGameStarted = true;
     setState(() {
       Timer.periodic(const Duration(milliseconds: 50), (timer) {
-        _time += 0.04;
+        _time += _birdFallingSpeed;
         _heightOverTime = _calculateHeightOverTime();
         setState(() {
-          _firstBarrierPosition -= 0.03;
-          _secondBarrierPosition -= 0.03;
+          _firstBarrierPosition -= _barrierSpeed;
+          _secondBarrierPosition -= _barrierSpeed;
           _birdVerticalPosition = _currentHeight - _heightOverTime;
         });
         if (_isGameEnded()) {
           timer.cancel();
           _isGameStarted = false;
           _isGameEnd = true;
-          _highScore = _score > _highScore ? _score : _highScore;
+          widget.score.addScore(_playScore);
+          _highScore = widget.score.getHighScore();
+          JsonManager().writeJsonFile(widget.score);
         }
         if (_isScored()) {
-          _score++;
+          _playScore++;
+          if (_playScore % 10 == 0) {
+            _barrierSpeed *= 1.5;
+          }
         }
 
         // reset the position of bariers
@@ -288,8 +340,9 @@ class _GameHomePageState extends State<GameHomePage> {
   }
 
   bool _isScored() {
-    return (_firstBarrierPosition < 0.015 && _firstBarrierPosition > -0.015) ||
-        (_secondBarrierPosition < 0.015 && _secondBarrierPosition > -0.015);
+    double bound = _barrierSpeed / 2;
+    return (_firstBarrierPosition < bound && _firstBarrierPosition > -bound) ||
+        (_secondBarrierPosition < bound && _secondBarrierPosition > -bound);
   }
 
   bool _isBarrierCollision() {
