@@ -65,9 +65,10 @@ class _GameHomePageState extends State<GameHomePage> {
           Expanded(
               child: GestureDetector(
             onTap: () {
-              if (_isGameStarted) {
+              if (_isGameStarted && !_isGameEnd) {
                 _jump();
-              } else {
+              }
+              if (!_isGameStarted) {
                 _startGame();
               }
             },
@@ -101,7 +102,7 @@ class _GameHomePageState extends State<GameHomePage> {
                   child: Text(
                     !_isGameStarted
                         ? !_isGameEnd
-                            ? 'T A P  T O  P L A Y'
+                            ? 'N H Ấ N   Đ Ể   B Ắ T   Đ Ầ U'
                             : ''
                         : '',
                     style: const TextStyle(
@@ -135,37 +136,41 @@ class _GameHomePageState extends State<GameHomePage> {
       child: _isGameEnd
           ? Container(
               width: 350,
-              height: 300,
+              height: 350,
               decoration: BoxDecoration(
-                  color: Colors.brown,
+                  color: const Color.fromARGB(255, 29, 26, 26),
                   border: Border.all(
-                    color: Colors.amberAccent,
+                    color: const Color.fromARGB(255, 15, 93, 5),
                     style: BorderStyle.solid,
                     width: 5,
                   )),
               alignment: const Alignment(0, 0),
               padding: const EdgeInsets.all(15),
-              child: _showDialog(_showType),
+              child: _showDialog(context, _showType),
             )
           : null,
     );
   }
 
-  Column _showDialog(int type) {
+  Column _showDialog(BuildContext context, int type) {
     switch (type) {
       case 1:
         return _endGameDialog();
       case 2:
-        return _scoreDialog();
+        return _scoreDialog(context);
       default:
     }
     return _endGameDialog();
   }
 
-  Column _scoreDialog() {
+  Column _scoreDialog(BuildContext context) {
+    double size = widget.score.scores.length / 2;
+    TextStyle style = const TextStyle(color: Colors.white, fontSize: 25);
+    EdgeInsets padding = const EdgeInsets.only( left: 40);
     return Column(
       children: <Widget>[
         ButtonBar(
+          buttonHeight: 30,
           alignment: MainAxisAlignment.start,
           children: [
             BackButton(
@@ -175,7 +180,41 @@ class _GameHomePageState extends State<GameHomePage> {
                   _showType = 1;
                 });
               },
-            )
+            ),
+          ],
+        ),
+        Text('Lịch sử', style: style,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Container(
+              padding: padding,
+              width: 150,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: size.round(),
+                itemBuilder: (context, index) {
+                  return Text(
+                    '${index + 1}. ${widget.score.scores.elementAt(index)}',
+                    style: style,
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding: padding,
+              width: 150,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: size.round(),
+                itemBuilder: (context, index) {
+                  return Text(
+                    '${(index + size + 1).toInt()}. ${widget.score.scores.elementAt(index + size.round())}',
+                    style: style,
+                  );
+                },
+              ),
+            ),
           ],
         )
       ],
@@ -187,7 +226,7 @@ class _GameHomePageState extends State<GameHomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         const Text(
-          "GAME OVER",
+          'Trò chơi kết thúc',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -197,14 +236,14 @@ class _GameHomePageState extends State<GameHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: const [
             Text(
-              'Score',
+              'Điểm',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
               ),
             ),
             Text(
-              'Highest Score',
+              'Điểm cao',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
