@@ -68,7 +68,7 @@ class _GameHomePageState extends State<GameHomePage> {
               if (_isGameStarted && !_isGameEnd) {
                 _jump();
               }
-              if (!_isGameStarted) {
+              if (!_isGameStarted && !_isGameEnd) {
                 _startGame();
               }
             },
@@ -166,7 +166,7 @@ class _GameHomePageState extends State<GameHomePage> {
   Column _scoreDialog(BuildContext context) {
     double size = widget.score.scores.length / 2;
     TextStyle style = const TextStyle(color: Colors.white, fontSize: 25);
-    EdgeInsets padding = const EdgeInsets.only( left: 40);
+    EdgeInsets padding = const EdgeInsets.only(left: 40);
     return Column(
       children: <Widget>[
         ButtonBar(
@@ -183,7 +183,10 @@ class _GameHomePageState extends State<GameHomePage> {
             ),
           ],
         ),
-        Text('Lịch sử', style: style,),
+        Text(
+          'Lịch sử',
+          style: style,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
